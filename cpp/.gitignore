@@ -1,0 +1,9 @@
+.vs/*
+*.o
+*.xlsx
+*.txt
+*.PNG
+*.png
+testCholesky
+testCholeskyMKL
+
