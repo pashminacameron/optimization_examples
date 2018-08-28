@@ -119,12 +119,12 @@ def timeCholesky(matSize, resultsFile, fastOnly):
 
         times=[]
         # Warm up runs
-        (L6 ,pd) = sp.linalg.lapack.dpotrf(M, True)
-        (L6 ,pd) = sp.linalg.lapack.dpotrf(M, True)
+        (L6 ,pd) = sp.linalg.lapack.spotrf(M, True)
+        (L6 ,pd) = sp.linalg.lapack.spotrf(M, True)
         # Timed runs
         for _ in range(numRuns):
             start6 = time.clock()
-            (L6 ,pd) = sp.linalg.lapack.dpotrf(M, True)
+            (L6 ,pd) = sp.linalg.lapack.spotrf(M, True)
             times.append(time.clock() - start6)
         print("Size = %d, scipy.linalg.lapack.cholesky time =\t %10.10f ms" % (matSize, min(times)*1000))
         fh.write("{:10.10f}".format(min(times)*1000)+",")
