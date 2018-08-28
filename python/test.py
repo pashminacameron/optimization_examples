@@ -32,7 +32,7 @@ def timeCholesky(matSize, resultsFile, fastOnly):
     with open(resultsFile,'a') as fh:
         accuracyCheck()
 
-        numRuns = 1
+        numRuns = 5
         # Generate a test matrix 
         M = genRandPosDefMatrix(matSize)
 
@@ -43,9 +43,14 @@ def timeCholesky(matSize, resultsFile, fastOnly):
         fh.write(str(matSize)+",")
         if not fastOnly:
             times = []
-            for _ in range(numRuns):
+            # Warm up runs
+            L1 = [[0.0] * matSize for i in range(matSize)]
+            cholesky_py(A, L1)
+            cholesky_py(A, L1)
+            # Timed runs
+            for _ in range(numRuns):                
                 start1 = time.clock()
-                L1 = [[0.0] * matSize for i in range(matSize)]
+                L1 = [[0.0] * matSize for i in range(matSize)]                
                 cholesky_py(A, L1)
                 times.append(time.clock() - start1)
             print("Size = %d, Python Cholesky time      = \t %10.10f ms" % (matSize, min(times)*1000))
@@ -53,22 +58,33 @@ def timeCholesky(matSize, resultsFile, fastOnly):
 
             times = []
             An = np.asmatrix(M, dtype=float)
-            # Initialize L to zero matrix
-            for _ in range(numRuns):
+            # Warm up runs
+            L2 = np.zeros((matSize, matSize),dtype=float)
+            cholesky_numpy(An, L2)
+            cholesky_numpy(An, L2)
+            # Timed runs
+            for _ in range(numRuns):                
                 start2 = time.clock()
-                L2 = np.zeros((matSize, matSize),dtype=float)
+                L2 = np.zeros((matSize, matSize),dtype=float)                
                 cholesky_numpy(An, L2)
                 times.append(time.clock() - start2)
             print("Size = %d, Numpy (hand) Cholesky time =\t %10.10f ms" % (matSize, min(times)*1000))
             fh.write("{:10.10f}".format(min(times)*1000)+",")
+
         else:
-            fh.write("Nan,Nan,")
+            fh.write(" , ,")        
+        
 
         An = np.asmatrix(M, dtype=float)
         times = []
+        # Warm up runs
+        L3 = np.zeros((matSize, matSize), dtype=float)
+        cholesky_numba(An, L3)
+        cholesky_numba(An, L3)
+        # Timed runs
         for _ in range(numRuns):
             start3 = time.clock()
-            L3 = np.zeros((matSize, matSize), dtype=float)
+            L3 = np.zeros((matSize, matSize), dtype=float)            
             # Numba is happier with all variables already allocated
             cholesky_numba(An, L3)
             times.append(time.clock() - start3)
@@ -77,6 +93,10 @@ def timeCholesky(matSize, resultsFile, fastOnly):
 
         # numpy library function
         times = []
+        # Warm up runs
+        L4 = np.linalg.cholesky(An)
+        L4 = np.linalg.cholesky(An)
+        # Timed runs
         for _ in range(numRuns):
             start4 = time.clock()
             L4 = np.linalg.cholesky(An)
@@ -86,6 +106,10 @@ def timeCholesky(matSize, resultsFile, fastOnly):
 
         # numpy library function
         times = []
+        # Warm up runs
+        L5 = sp.linalg.cholesky(M, True)
+        L5 = sp.linalg.cholesky(M, True)
+        # Timed runs
         for _ in range(numRuns):
             start5 = time.clock()
             L5 = sp.linalg.cholesky(M, True)
@@ -94,6 +118,10 @@ def timeCholesky(matSize, resultsFile, fastOnly):
         fh.write("{:10.10f}".format(min(times)*1000)+",")
 
         times=[]
+        # Warm up runs
+        (L6 ,pd) = sp.linalg.lapack.dpotrf(M, True)
+        (L6 ,pd) = sp.linalg.lapack.dpotrf(M, True)
+        # Timed runs
         for _ in range(numRuns):
             start6 = time.clock()
             (L6 ,pd) = sp.linalg.lapack.dpotrf(M, True)
@@ -112,8 +140,9 @@ def timeCholesky(matSize, resultsFile, fastOnly):
         fh.close()
     return
 
-smallSizes = [pow(2,i) for i in range(2,13)] # 4 to 256
-#largerSizes = [pow(2,i) for i in range(9,13)] # 512 to 4096
+# Use smallSizes over the whole range (2,13) when doing a benchmark but this takes a very long time
+smallSizes = [pow(2,i) for i in range(2,11)] # 4 to 1024
+largerSizes = [pow(2,i) for i in range(11,13)] # 2048, 4096
 
 
 resultsFile = "timings2.csv"
@@ -128,5 +157,5 @@ fh.close()
 for n in smallSizes:
     timeCholesky(n, resultsFile, False)
 # Time only the efficient, C-based algorithms for matrix sizes 512-4096
-#for n in largerSizes:
-#    timeCholesky(n, resultsFile, True)
+for n in largerSizes:
+    timeCholesky(n, resultsFile, True)
