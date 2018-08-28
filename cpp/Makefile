@@ -7,11 +7,13 @@
 # make clean && make
 # ./testCholesky # to run without MKL
 # LD_LIBRARY_PATH=/opt/intel/mkl/lib/intel64_lin/ ./testCholeskyMKL # to run with MKL
+# -ffast-math turns on -funsafe-math-optimizations which is the real problem/speedup depending on what you care about: accuracy and compliance or speed
+# not having -ffast-math is equivalent to having -fno-unsafe-math-optimizations, rest of the flags have very little effect on this example
 
 NAME = testCholesky
-CC := /usr/bin/g++-6
+CC := /usr/bin/g++
 LD := /usr/bin/ld
-CCFLAGS := -m64 --std=c++11 -O3 -ffast-math -fpermissive -Xlinker --verbose # -pg -fprofile-use
+CCFLAGS := -m64 --std=c++11 -O3 #-ffast-math -v -pg -fprofile-use
 MKL_CCFLAGS := -DHAVE_MKL
 LDFLAGS := # -pg -fprofile-use
 
