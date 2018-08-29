@@ -1,0 +1,7 @@
+.vs/*
+*.o
+*.xlsx
+*.txt
+*.PNG
+*.png
+featureMatching
