@@ -1,4 +1,4 @@
-# Cholesky example for optimization benchmarking
+# Optimization examples (Cholesky decomposition and others)
 
 ## Setup
 
