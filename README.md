@@ -1,4 +1,4 @@
-# Optimization examples (Cholesky decomposition and others)
+# Optimization examples
 
 ## Setup
 
